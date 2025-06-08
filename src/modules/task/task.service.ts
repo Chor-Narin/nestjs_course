@@ -1,39 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { NotificationService } from 'src/notification/notification.service';
+import { dto } from './dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class TaskService {
-  getTask(id: string) {
-    console.log(id);
-    return {
-      name: 'Task 1',
-      description: 'Description of Task 1',
-      createdAt: new Date().toISOString(),
-      completedAt: null,
-      userId: 1,
-    };
+
+  constructor(private readonly notifier : NotificationService){}
+  private readonly logger = new Logger(TaskService.name);
+
+  createTask(body: dto) {
+    console.log('Received body:', body); // Add this debug log
+    if (!body) {
+        throw new Error('Body is undefined');
+    }
+    this.notifier.notify(`Task "${body.name}" created`);
   }
-  createTask(body: any) {
-    console.log(body);
-    return {
-      name: 'Task 1',
-      description: 'Description of Task 1',
-      createdAt: new Date().toISOString(),
-      completedAt: null,
-      userId: 1,
-    };
-  }
-  updateTask(id: string, body: any) {
-    console.log(body);
-    return {
-      name: 'Task 1',
-      description: 'Description of Task 1',
-      createdAt: new Date().toISOString(),
-      completedAt: null,
-      userId: 1,
-    };
-  }
-  deleteTask(id: string) {
-    console.log(id);
-    return { message: 'success' };
+
+  @Cron(CronExpression.EVERY_10_SECONDS)
+  handleCronjob(){
+    this.logger.debug('this cron job will run every 15 second')
   }
 }
